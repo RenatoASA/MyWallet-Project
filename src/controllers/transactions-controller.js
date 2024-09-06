@@ -1,8 +1,5 @@
-import {db} from '../config/database.js'
+import {db} from '../config/database.js';
 import { ObjectId } from 'mongodb';
-import joi from 'joi';
-import { transactionsSchema } from '../schemas/transactions-schema.js';
-
 
 
 //app.get("/transactions", async
@@ -40,14 +37,6 @@ export async function postTransactions (req, res) {
     const bodyTransaction = req.body;
 
     //ADD FUNCTION SOMADEPOSIT - SOMAWITHDRAW
-
-    const validation = transactionsSchema.validate(
-        bodyTransaction,
-        { abortEarly: false })
-  
-    if (validation.error) {
-      return res.status(422).send("Unprocessable Entity");
-    }
   
     try {
          if(bodyTransaction.type === "deposit"){
@@ -91,29 +80,19 @@ export async function postTransactions (req, res) {
 
   export async function putTransactions (req, res) {
     const  id = req.params;
-    const transactionBody = req.body;
-    const transactionSchema = joi.object({
-      value: joi.number().required(),   
-      description: joi.string().required()
-    });
-  
-    const validation = transactionSchema.validate(transactionBody, { abortEarly: false });
-    console.log("passou com valor: "+transactionBody);
-    if (validation.error) {
-      const messageError = validation.error.details.map(datail => datail.message);
-      return res.status(422).send(messageError);
-    }
+    const transactionBody = req.body;    
   
     try {
-        console.log("passou depois da validação com valor: " + transactionBody);
+       
         const findBody = await db.collection("transactions").findOne({_id: new ObjectId(id)});
-        console.log("passou do find com valor: "+ findBody);
+        
         const result = await db.collection("transactions").updateOne({
         _id: new ObjectId(id)
       }, {
         $set: {
           value: transactionBody.value,
-          description: transactionBody.description
+          description: transactionBody.description,
+          type: transactionBody.type
         }
       });
       if (result.matchedCount === 0) {

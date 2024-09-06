@@ -1,19 +1,12 @@
 
 import bcrypt from 'bcrypt';
-import {v4 as uuid} from 'uuid';
-import { schemaLognin,schemaLognup } from '../schemas/users-schema.js';
-import {db} from '../config/database.js'
+import {db} from '../config/database.js';
+import jwt from 'jsonwebtoken'
 
 
 export async function postSignup (req, res) {
 
     const bodySignup = req.body;
-    
-    const validacao = schemaLognup.validate(bodySignup, {abortEarly:false});
-    if(validacao.error){
-        const messages = validacao.error.details.map(details => details.message);
-        return res.status(422).send('Unprocessable Entity  ' + messages)
-    }
     
     try {
         const respName = await db.collection('users').findOne({ name: bodySignup.name });
@@ -37,12 +30,6 @@ export async function postSignup (req, res) {
        
     const bodyUser= req.body;
     
-    const validacao = schemaLognin.validate(bodyUser, {abortEarly:false});
-    if(validacao.error){
-        const messages = validacao.error.details.map(details => details.message);
-        return res.status(422).send('Unprocessable Entity  ' + messages)
-    }
-    
     try {
         const respBodyUser = await db.collection('users').findOne({ email: bodyUser.email });
         if (!respBodyUser) return res.status(404).send("Not Found");
@@ -61,7 +48,7 @@ export async function postSignup (req, res) {
             };
     
             await db.collection("sessoes").insertOne(sessao);
-            return res.send(token);
+            return res.status(200).send(token);
         }
     
            return res.status(401).send("Email e senha incompativeis");
