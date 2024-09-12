@@ -23,7 +23,7 @@ export async function postSignup(req, res) {
         });
         return res.status(201).send("Registro feito com sucesso");
     } catch (error) {
-        return res.status(500).send('caiu aqui');
+        return res.status(500).send(error.message);
 
     }
 
